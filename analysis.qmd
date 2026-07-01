@@ -12,17 +12,6 @@ library(readxl)
 ```
 
 ```{r}
-read_excel("data/us_births_1994_2014.xlsx") |> 
-  glimpse()
-```
-
-```{r}
-read_excel("data/us_births_1994_2014.xlsx") |> 
-  select(births, year) |> 
-  summary()
-```
-
-```{r}
 #| cache: true
 births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |> 
   mutate(
@@ -32,12 +21,6 @@ births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
       ordered = TRUE
     )
   )
-```
-
-```{r}
-births_tibble |> 
-  group_by(month, date_of_month) |> 
-  summarize(mean_births = mean(births), .groups = "drop")
 ```
 
 ```{r}
@@ -75,13 +58,6 @@ christmas_data <- births_tibble |>
     weekday = factor(weekday,
                      levels = c("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"))
   )
-
-christmas_data
-```
-
-```{r}
-christmas_data |> 
-  summary()
 ```
 
 ```{r}
@@ -105,24 +81,14 @@ christmas_data |>
 ```{r}
 births_model <- lm(births ~ factor(year) + factor(month) + day_of_week, data = births_tibble)
 
-summary(births_model)$r.squared
-```
-
-
-```{r}
 births_adjusted <- births_tibble |> 
   mutate(pct_resid = resid(births_model) / mean(births) * 100)
-glimpse(births_adjusted)
-```
 
-```{r}
 calendar_resid <- births_adjusted |> 
   filter(!(month == 2 & date_of_month == 29)) |> 
   group_by(month, date_of_month) |> 
   summarize(mean_pct_resid = mean(pct_resid), .groups = "drop") |> 
   mutate(calendar_date = as.Date(paste("2001", month, date_of_month, sep = "-")))
-
-calendar_resid
 ```
 
 ```{r}
@@ -146,17 +112,6 @@ calendar_resid |>
 ```
 
 ```{r}
-read_excel("data/nba_recruits.xlsx") |> 
-  glimpse()
-```
-
-```{r}
-read_excel("data/nba_recruits.xlsx") |> 
-  select(rank, nba_mean_ws48, top_mean_wa, total_seasons, drafted) |> 
-  summary()
-```
-
-```{r}
 #| cache: true
 basketball_tibble <- read_excel("data/nba_recruits.xlsx") |> 
   mutate(
@@ -173,10 +128,11 @@ basketball_tibble <- read_excel("data/nba_recruits.xlsx") |>
       ordered = TRUE
     )
   )
-glimpse(basketball_tibble)
 ```
 
 ```{r}
+#| message: false
+#| warning: false
 basketball_tibble |>
   filter(!is.na(rank), !is.na(top_mean_wa)) |>
   ggplot(aes(x = rank, y = top_mean_wa, color = tier)) +
